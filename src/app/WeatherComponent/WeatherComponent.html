@@ -1,0 +1,385 @@
+<div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <button class="menu-button">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="logo" >Weather Dashboard</h1>
+        <div class="location" (click)="getLocation()">
+          <i class="fas fa-map-marker-alt location-icon"></i>
+          {{ currentlocation }}
+        </div>
+        
+        <div class="search-container">
+            <input 
+              class="search-input" 
+              [(ngModel)]="cityName" 
+              (keyup)="onInputChange()"
+              (keyup.enter)="getWeather()"
+              placeholder="Search Location" 
+              type="text"
+              name="search"
+            >
+            <i class="fas fa-search search-icon"></i>
+            <!-- <p-autocomplete 
+            [(ngModel)]="selectedCity" 
+            [suggestions]="filteredCities" 
+            (completeMethod)="search($event)" 
+            field="city"
+            placeholder="Search for a city">
+          </p-autocomplete> -->
+          
+          </div>
+          
+          
+          
+        
+        <div class="header-icons">
+          <button class="icon-button notification-button">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+          </button>
+          <button class="icon-button settings-button">
+            <i class="fas fa-cog"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+  
+    <!-- Main Content -->
+    <main class="main-content" >
+
+        <div *ngIf="!weather" class="no-weather-container">
+            <div class="sad-cloud-card">
+              <div class="sad-cloud">
+                <i class="fas fa-map-marked-alt cloud-icon"></i>
+                <div class="cloud-face">
+                  <div class="sad-eyes">
+                    <span class="eye left-eye"></span>
+                    <span class="eye right-eye"></span>
+                  </div>
+                  <div class="sad-mouth"></div>
+                </div>
+                <div class="cloud-message">
+                  <h2>NO LOCATION FOUND!</h2>
+                  <p>We couldn't find weather for your search</p>
+                </div>
+              </div>
+            </div>
+          </div>
+      <div class="grid-container" *ngIf="weather">
+        <!-- Current Weather -->
+        <div class="current-weather card">
+            <div class="weather-header">
+              <div>
+                <h2 class="weather-greeting highlight-white">
+                  <i [class]="getWeatherIcon(weather.weather[0].main)" class="highlight-white"></i>
+                  Good {{ getTimeOfDay() }}, {{ weather.name }}
+                </h2>
+                <p class="time soft-white">
+                  <i class="fas fa-calendar-alt soft-white"></i> {{ currentDate }} 
+                  <span class="time-separator">•</span>
+                  <i class="fas fa-clock soft-white"></i> {{ currentTime }}
+                </p>
+              </div>
+              <div class="unit-toggle">
+                <button class="unit-btn" 
+                        [class.active]="currentUnit === 'F'"
+                        (click)="toggleUnit()">
+                  °F
+                </button>
+                <button class="unit-btn"
+                        [class.active]="currentUnit === 'C'"
+                        (click)="toggleUnit()">
+                  °C
+                </button>
+              </div>
+            </div>
+          
+            <div class="weather-main">
+                <div class="temperature-display">
+                    <div class="temp-and-quote">
+                    <div class="current-temp highlight-white">{{ displayTemp(weather.main.temp) }}°</div>
+                      <div class="weather-quote highlight-white" [ngStyle]="getQuoteStyle()">
+                        <i class="fas fa-quote-left"></i>
+                        {{ getWeatherQuote() }}
+                        <i class="fas fa-quote-right"></i>
+                      </div>
+                    </div>
+                    <div class="temp-variation soft-white">
+                        <span class="high-temp"><i class="fas fa-caret-up"></i> {{ displayTemp(weather.main.temp_max) }}°</span>
+                        <span class="low-temp"><i class="fas fa-caret-down"></i> {{ displayTemp(weather.main.temp_min) }}°</span>
+                    </div>
+                  </div>
+                
+                <div class="weather-condition">
+                  <img [src]="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '@4x.png'" 
+                       [alt]="weather.weather[0].description"
+                       class="weather-icon-large">
+                  <div class="condition-desc">
+                    <div class="main-condition highlight-white">{{ weather.weather[0].main }}</div>
+                    <div class="feels-like soft-white">Feels like {{ kelvinToFahrenheit(weather.main.feels_like) }}°</div>
+                    <!-- Moved and enhanced quote here -->
+                   
+                  </div>
+                </div>
+              </div>
+          
+            <div class="weather-details soft-white">
+              <div class="detail-item">
+                <i class="fas fa-wind"></i>
+                <span>{{ weather.wind.speed }} mph</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-tint"></i>
+                <span>{{ weather.main.humidity }}%</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>{{ weather.main.pressure }} hPa</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-eye"></i>
+                <span>{{ weather.visibility/1000 }} km</span>
+              </div>
+            </div>
+          </div>
+        <!-- Weather Details -->
+        <div class="weather-details">
+            <div class="detail-card wind-card">
+              <div class="detail-title">
+                <i class="fas fa-wind"></i>
+                <span>Wind</span>
+              </div>
+              <div class="detail-value">{{ weather.wind.speed }} mph</div>
+              <div class="detail-direction" *ngIf="weather.wind.deg">
+                <i class="fas fa-arrow-up" [style.transform]="'rotate(' + weather.wind.deg + 'deg)'"></i>
+              </div>
+            </div>
+            
+            <div class="detail-card humidity-card">
+              <div class="detail-title">
+                <i class="fas fa-tint"></i>
+                <span>Humidity</span>
+              </div>
+              <div class="detail-value">{{ weather.main.humidity }}%</div>
+              <div class="humidity-bar">
+                <div class="bar-fill" [style.width]="weather.main.humidity + '%'"></div>
+              </div>
+            </div>
+            
+           
+            
+            <div class="detail-card pressure-card">
+              <div class="detail-title">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Pressure</span>
+              </div>
+              <div class="detail-value">{{ weather.main.pressure }} hPa</div>
+              <div class="pressure-trend">
+                <i class="fas" 
+                   [class.fa-arrow-up]="pressureTrend === 'rising'"
+                   [class.fa-arrow-down]="pressureTrend === 'falling'"
+                   [class.fa-equals]="pressureTrend === 'steady'"></i>
+              </div>
+            </div>
+            
+            <div class="detail-card clouds-card">
+              <div class="detail-title">
+                <i class="fas fa-cloud"></i>
+                <span>Clouds</span>
+              </div>
+              <div class="detail-value">{{ weather.clouds.all }}%</div>
+              <div class="clouds-visual">
+                <div class="cloudsmall" *ngFor="let c of [1,2,3]" [style.opacity]="weather.clouds.all/100"></div>
+              </div>
+            </div>
+          </div>
+  
+        <!-- Sun & Moon Summary -->
+        <div class="sun-moon-summary card">
+            <h2>Sun & Moon Summary</h2>
+            <div class="summary-grid">
+                <!-- Sun Data -->
+                <div class="summary-item">
+                  <div class="summary-title">
+                    <i class="fas fa-sun"></i>
+                    Sunrise
+                  </div>
+                  <div class="summary-value">{{ formatTime(weather.sys.sunrise) }}</div>
+                </div>
+                
+                <div class="summary-item">
+                  <div class="summary-title">
+                    <i class="fas fa-moon"></i>
+                    Sunset
+                  </div>
+                  <div class="summary-value">{{ formatTime(weather.sys.sunset) }}</div>
+                </div>
+                
+                <div class="summary-item">
+                  <div class="summary-title">
+                    <i class="fas fa-moon"></i>
+                    Moon Phase
+                  </div>
+                  <div class="summary-value moon-phase-value">
+                    <div class="moon-visual-container">
+                      <div class="moon" [ngStyle]="getMoonStyle(currentMoonPhase)"></div>
+                      <span class="moon-text">
+                        {{ currentMoonPhaseName }} ({{ currentMoonPhase | percent:'1.0-0' }})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          
+            <!-- Moon Phase History -->
+            <div class="moon-phase-history">
+              <h3>Moon Phases This Week</h3>
+              <div class="moon-phase-grid">
+                <div class="moon-phase-day" *ngFor="let day of pastWeekMoonPhases">
+                  <div class="moon-phase-date">{{day.date }}</div>
+                  <div class="moon-container">
+                    <div class="moon" [ngStyle]="getMoonStyle(day.phase)"></div>
+                  </div>
+                  <div class="moon-phase-name">{{ day.phaseName }}</div>
+                  <div class="moon-phase-percent">{{ day.phase | percent:'1.0-0' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="forecast card">
+            <div class="forecast-header">
+              <div class="forecast-tabs">
+                <button 
+                  class="forecast-tab" 
+                  [class.active]="activeTab === 'yesterday'"
+                  (click)="setActiveTab('yesterday')">
+                  Yesterday
+                </button>
+                <button 
+                  class="forecast-tab" 
+                  [class.active]="activeTab === 'today'"
+                  (click)="setActiveTab('today')">
+                  Today
+                </button>
+                <button 
+                  class="forecast-tab" 
+                  [class.active]="activeTab === 'tomorrow'"
+                  (click)="setActiveTab('tomorrow')">
+                  Tomorrow
+                </button>
+              </div>
+            </div>
+          
+            <div *ngIf="loading" class="loading-spinner">
+              Loading weather data...
+            </div>
+          
+            <!-- Scrollable Content Container -->
+            <div class="forecast-content-container">
+              <!-- Today's Forecast -->
+              <div class="forecast-items" *ngIf="!loading && activeTab === 'today'">
+                <div class="forecast-item" *ngFor="let forecast of todayForecast">
+                  <div class="forecast-left">
+                    <img 
+                      class="forecast-icon" 
+                      [src]="'https://openweathermap.org/img/wn/' + forecast.weather[0].icon + '.png'" 
+                      [alt]="forecast.weather[0].description">
+                    <div>
+                      <div class="forecast-time">{{ formatTime(forecast.dt) }}</div>
+                      <div class="forecast-condition">{{ forecast.weather[0].main }}</div>
+                    </div>
+                  </div>
+                  <div class="forecast-temp">{{ forecast.main.temp }}°C</div>
+                  <div class="forecast-stats">
+                    <div>Wind: {{ forecast.wind.speed }} km/h</div>
+                    <div>Humidity: {{ forecast.main.humidity }}%</div>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Tomorrow's Forecast -->
+              <div class="forecast-items" *ngIf="!loading && activeTab === 'tomorrow'">
+                <div class="forecast-item" *ngFor="let forecast of tomorrowForecast">
+                  <div class="forecast-left">
+                    <img 
+                      class="forecast-icon" 
+                      [src]="'https://openweathermap.org/img/wn/' + forecast.weather[0].icon + '.png'" 
+                      [alt]="forecast.weather[0].description">
+                    <div>
+                      <div class="forecast-time">{{ formatTime(forecast.dt) }}</div>
+                      <div class="forecast-condition">{{ forecast.weather[0].main }}</div>
+                    </div>
+                  </div>
+                  <div class="forecast-temp">{{ forecast.main.temp }}°C</div>
+                  <div class="forecast-stats">
+                    <div>Wind: {{ forecast.wind.speed }} km/h</div>
+                    <div>Humidity: {{ forecast.main.humidity }}%</div>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Yesterday's Forecast -->
+              <div class="forecast-items" *ngIf="!loading && activeTab === 'yesterday' && yesterdayForecast">
+                <div class="forecast-item">
+                  <div class="forecast-left">
+                    <img 
+                      class="forecast-icon" 
+                      [src]="'https://openweathermap.org/img/wn/' + yesterdayForecast.weather[0].icon + '.png'" 
+                      [alt]="yesterdayForecast.weather[0].description">
+                    <div>
+                      <div class="forecast-time">Yesterday</div>
+                      <div class="forecast-condition">{{ yesterdayForecast.weather[0].main }}</div>
+                    </div>
+                  </div>
+                  <div class="forecast-temp">{{ yesterdayForecast.main.temp }}°C</div>
+                  <div class="forecast-stats">
+                    <div>Wind: {{ yesterdayForecast.wind.speed }} km/h</div>
+                    <div>Humidity: {{ yesterdayForecast.main.humidity }}%</div>
+                  </div>
+                </div>
+                <div class="forecast-note">
+                  Note: This feature is currently being upgraded.
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- weather-loader.component.html -->
+<div class="weather-loader" *ngIf="loading">
+    <div class="loader-container">
+      <!-- Sunny Loader -->
+      <div class="sun-loader" *ngIf="weatherCondition === 'clear'">
+        <div class="sun"></div>
+        <div class="ray"></div>
+        <div class="ray"></div>
+        <div class="ray"></div>
+        <div class="ray"></div>
+      </div>
+      
+      <!-- Rainy Loader -->
+      <div class="rain-loader" *ngIf="weatherCondition === 'rain'">
+        <div class="cloud"></div>
+        <div class="rain">
+          <div class="drop"></div>
+          <div class="drop"></div>
+          <div class="drop"></div>
+          <div class="drop"></div>
+        </div>
+      </div>
+      
+      <!-- Cloudy Loader -->
+      <div class="cloud-loader" *ngIf="weatherCondition === 'clouds'">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+      </div>
+      
+      <p class="loader-text">Loading weather data...</p>
+    </div>
+  </div>

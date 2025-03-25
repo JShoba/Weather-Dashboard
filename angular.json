@@ -24,7 +24,9 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+               "src/favicon.ico",
+            "src/assets"
             ],
             "styles": [
               "src/styles.css"
@@ -87,15 +89,21 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+               "src/favicon.ico",
+               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+   "src/styles.css",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
             ],
             "scripts": []
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "d2ff1519-855d-4b89-b5c0-109dbc387340"
   }
 }
