@@ -9,7 +9,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { ChartModule } from 'primeng/chart';
-import moment from 'moment';
+import { fromUnixTime,format, isSameDay, addDays } from 'date-fns';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { forkJoin } from 'rxjs';
 @Component({
@@ -348,24 +348,24 @@ export class WeatherComponent implements OnInit {
     return 'fas fa-moon'; // Waning phases
   }
   processForecastData(forecastList: any[]) {
-    const now = moment();
-    const tomorrow = moment().add(1, 'day');
+    const now = new Date();
+    const tomorrow = addDays(now, 1);
 
     this.todayForecast = forecastList
-      .filter(item => moment.unix(item.dt).isSame(now, 'day'))
+      .filter(item => isSameDay(fromUnixTime(item.dt), now))
       .slice(0, 8); // Limit to 8 time slots
 
     this.tomorrowForecast = forecastList
-      .filter(item => moment.unix(item.dt).isSame(tomorrow, 'day'))
+      .filter(item => isSameDay(fromUnixTime(item.dt), tomorrow))
       .slice(0, 8);
-  }
-  formatTime(timestamp: number): string {
-    return moment.unix(timestamp).format('h A');
-  }
+}
+formatTime(timestamp: number): string {
+  return format(fromUnixTime(timestamp), 'h a'); 
+}
 
   // Add this method for date formatting
-  formatDate(timestamp: number, format: string = 'MMM D'): string {
-    return moment.unix(timestamp).format(format);
+  formatDate(timestamp: number, dateFormat: string = 'MMM d'): string {
+    return format(fromUnixTime(timestamp), dateFormat);
   }
   setActiveTab(tab: 'today' | 'tomorrow' | 'yesterday') {
     this.activeTab = tab;
