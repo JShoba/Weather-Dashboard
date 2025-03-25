@@ -1,15 +1,22 @@
-# MedicineRemainderApp
+# Weather Dashboard Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.5.
+![Weather App Screenshot](src/assets/screenshot.png) <!-- Add a screenshot path -->
 
-## Development server
+A responsive Angular-based weather application providing real-time forecasts, historical comparisons, and moon phase tracking.
 
-To start a local development server, run:
+## Prerequisites
 
-```bash
-ng serve
-```
+- Node.js v18+ ([Download](https://nodejs.org/))
+- npm v9+ (comes with Node.js)
+- Angular CLI v19+ (`npm install -g @angular/cli`)
 
+## Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/weatherApp.git
+   cd weatherApp
+  use npm i --force to install all the required features
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
 ## Code scaffolding
