@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'medicine_remainder_app' title`, () => {
+  it(`should have the 'Weather-Dashboard_app' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('medicine_remainder_app');
+    expect(app.title).toEqual('Weather-Dashboard_app');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, medicine_remainder_app');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello,Weather-Dashboard_app');
   });
 });

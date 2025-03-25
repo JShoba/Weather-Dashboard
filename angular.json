@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "medicine_remainder_app": {
+    "Weather-Dashboard_app": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/medicine_remainder_app",
+            "outputPath": "dist/Weather-Dashboard_app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -63,10 +63,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "medicine_remainder_app:build:production"
+              "buildTarget": "Weather-Dashboard:build:production"
             },
             "development": {
-              "buildTarget": "medicine_remainder_app:build:development"
+              "buildTarget": "Weather-Dashboard:build:development"
             }
           },
           "defaultConfiguration": "development"

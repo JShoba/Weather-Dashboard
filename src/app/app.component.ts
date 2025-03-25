@@ -9,5 +9,5 @@ import { WeatherComponent } from './WeatherComponent/WeatherComponent';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'medicine_remainder_app';
+  title = 'Weather-Dashboard_app';
 }
