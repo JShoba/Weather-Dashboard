@@ -76,7 +76,7 @@ body {
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0.5rem;
-  margin-left: -121px;
+  margin-left: -40px;
 }
 
 .logo {
@@ -115,7 +115,7 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-right: -130px;
+  margin-right: -40px;
 }
 .search-icon {
   position: absolute;

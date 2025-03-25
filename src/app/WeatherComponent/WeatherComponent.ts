@@ -11,7 +11,7 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { ChartModule } from 'primeng/chart';
 import { fromUnixTime,format, isSameDay, addDays } from 'date-fns';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 @Component({
   selector: 'app-weather',
   standalone: true,
@@ -280,28 +280,57 @@ export class WeatherComponent implements OnInit {
 
 
   loadWeatherData(lat: number, lon: number) {
-    this.loading = true; // Start loading
-  
-    // Fetch all required weather data
+    this.loading = true;
+
+    // Create fallback moon data
+    const generateFallbackMoonData = (days: number) => {
+      const phases = [];
+      const todayPhase = Math.random(); // Random phase for today (0-1)
+      
+      for (let i = 0; i < days; i++) {
+        const phase = (todayPhase + (i * 0.03)) % 1; // Increment phase slightly each day
+        phases.push({
+          moonphase: phase,
+          datetime: new Date(Date.now() - (days - 1 - i) * 86400000).toISOString()
+        });
+      }
+      return { days: phases };
+    };
+
+    // Create observables with error handling
+    const currentWeather$ = this.weatherService.getCurrentWeather(lat, lon);
+    const fiveDayForecast$ = this.weatherService.getFiveDayForecast(lat, lon);
+    
+    const moonPhase$ = this.weatherService.getMoonPhase(lat, lon).pipe(
+      catchError(() => of(generateFallbackMoonData(1)))
+    );
+    
+    const pastWeekMoonPhases$ = this.weatherService.getPastWeekMoonPhases(lat, lon).pipe(
+      catchError(() => of(generateFallbackMoonData(7)))
+    );
+    
+    const yesterdayForecast$ = this.weatherService.getYesterdaySimulated(lat, lon);
+
     forkJoin({
-      currentWeather: this.weatherService.getCurrentWeather(lat, lon),
-      fiveDayForecast: this.weatherService.getFiveDayForecast(lat, lon),
-      moonPhase: this.weatherService.getMoonPhase(lat, lon),
-      pastWeekMoonPhases: this.weatherService.getPastWeekMoonPhases(lat, lon),
-      yesterdayForecast: this.weatherService.getYesterdaySimulated(lat, lon)
+      currentWeather: currentWeather$,
+      fiveDayForecast: fiveDayForecast$,
+      moonPhase: moonPhase$,
+      pastWeekMoonPhases: pastWeekMoonPhases$,
+      yesterdayForecast: yesterdayForecast$
     }).subscribe(
       ({ currentWeather, fiveDayForecast, moonPhase, pastWeekMoonPhases, yesterdayForecast }) => {
         this.currentWeather = currentWeather;
         this.processForecastData(fiveDayForecast.list);
-  
-        // Moon phase data
-        this.currentMoonPhase = moonPhase.days[0].moonphase;
+
+        // Moon phase data (with fallback)
+        const todayMoonData = moonPhase.days[0] || { moonphase: 0.5 }; // Default to half moon if no data
+        this.currentMoonPhase = todayMoonData.moonphase;
         this.currentMoonPhaseName = this.getMoonPhaseName(this.currentMoonPhase);
-  
-        // Process past week moon phases
-        this.pastWeekMoonPhases = pastWeekMoonPhases.days.map((day: any, index: number) => {
+
+        // Process past week moon phases (with fallback)
+        this.pastWeekMoonPhases = (pastWeekMoonPhases.days || []).map((day: any, index: number) => {
           const date = new Date();
-          date.setDate(date.getDate() - (pastWeekMoonPhases.days.length - 1 - index));
+          date.setDate(date.getDate() - (6 - index)); // Last 7 days
           return {
             date: date.toLocaleDateString('en-US', { weekday: 'short' }),
             phase: day.moonphase,
@@ -309,7 +338,7 @@ export class WeatherComponent implements OnInit {
             icon: this.getMoonIcon(day.moonphase)
           };
         });
-  
+
         // Simulated yesterday forecast
         this.yesterdayForecast = {
           ...yesterdayForecast,
@@ -320,12 +349,12 @@ export class WeatherComponent implements OnInit {
             temp_min: yesterdayForecast.main.temp_min - 2
           }
         };
-  
-        this.loading = false; // ✅ Set loading to false only after all API calls are completed
+
+        this.loading = false;
       },
       (error) => {
         console.error('Error fetching weather data:', error);
-        this.loading = false; // In case of error, stop loading
+        this.loading = false;
       }
     );
   }
